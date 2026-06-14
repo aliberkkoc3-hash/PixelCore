@@ -3,13 +3,18 @@ const config = require('../config.json');
 module.exports = {
     name: 'kayıt',
     description: 'Bir üyeyi sunucuya kaydeder. Kullanım: pixel!kayıt <@kullanıcı> <İsim> <Yaş>',
-    async execute(message, args, client) { // Buraya 'async' eklendi
-        // Yetki kontrolü
-        if (!message.member.roles.cache.has(config.registrationOfficialRole)) {
-            return message.reply('❌ Bu komutu sadece kayıt yetkilileri kullanabilir.');
+    async execute(message, args, client) {
+        // 1. YETKİ KONTROLÜ (Hem ownerId hem rol kontrolü - String karşılaştırması ile)
+        const isOwner = String(message.author.id) === String(config.ownerId);
+        const hasRole = message.member.roles.cache.some(
+            role => String(role.id) === String(config.registrationOfficialRole)
+        );
+
+        if (!isOwner && !hasRole) {
+            return message.reply('❌ Bu komutu sadece kayıt yetkilileri veya sunucu sahibi kullanabilir.');
         }
 
-        // Argüman kontrolü
+        // 2. ARGÜMAN KONTROLÜ
         if (!args[0] || !args[1] || !args[2]) {
             return message.reply(`❌ Eksik bilgi! Doğru kullanım: \`${config.prefix}kayıt <@kullanıcı> <İsim> <Yaş>\``);
         }
@@ -31,17 +36,17 @@ module.exports = {
         }
 
         try {
-            // 1. Rolleri düzenle
+            // 3. ROLLERİ DÜZENLE
             if (unregisteredRole && targetUser.roles.cache.has(unregisteredRole.id)) {
                 await targetUser.roles.remove(unregisteredRole);
             }
             await targetUser.roles.add(registeredRole);
 
-            // 2. İsim güncelle
+            // 4. İSİM GÜNCELLE
             const newName = `${name} | ${age}`;
             await targetUser.setNickname(newName);
 
-            // 3. Geliştirilmiş Embed
+            // 5. EMBED OLUŞTUR
             const embed = {
                 color: 0x5865F2,
                 title: '🎉 Yeni Üye Kaydedildi!',
@@ -50,52 +55,27 @@ module.exports = {
                     url: targetUser.user.displayAvatarURL({ dynamic: true, size: 256 })
                 },
                 fields: [
-                    {
-                        name: '👤 Kullanıcı',
-                        value: `${targetUser} (\`${targetUser.id}\`)`,
-                        inline: true
-                    },
-                    {
-                        name: '📛 Yeni İsim',
-                        value: `\`${newName}\``,
-                        inline: true
-                    },
-                    {
-                        name: '🆔 Yaş',
-                        value: `\`${age}\``,
-                        inline: true
-                    },
-                    {
-                        name: '🛡️ Verilen Rol',
-                        value: `${registeredRole}`,
-                        inline: false
-                    },
-                    {
-                        name: '📝 Kayıt Eden Yetkili',
-                        value: `${message.author} (\`${message.author.tag}\`)`,
-                        inline: false
-                    }
+                    { name: '👤 Kullanıcı', value: `${targetUser} (\`${targetUser.id}\`)`, inline: true },
+                    { name: '📛 Yeni İsim', value: `\`${newName}\``, inline: true },
+                    { name: '🆔 Yaş', value: `\`${age}\``, inline: true },
+                    { name: '🛡️ Verilen Rol', value: `${registeredRole}`, inline: false },
+                    { name: '📝 Kayıt Eden', value: `${message.author} (\`${message.author.tag}\`)`, inline: false }
                 ],
-                footer: {
-                    text: `PixelCore Kayıt Sistemi • ${message.guild.name}`,
-                    icon_url: message.guild.iconURL({ dynamic: true })
-                },
+                footer: { text: `PixelCore • ${message.guild.name}`, icon_url: message.guild.iconURL({ dynamic: true }) },
                 timestamp: new Date()
             };
 
-            // 4. Log kanalına gönder
+            // 6. LOG KANALINA GÖNDER
             if (registerChannel) {
                 registerChannel.send({ embeds: [embed] }).catch(console.error);
             }
 
-            // 5. Komutu yazan kişiye DM veya kısa yanıt
-            message.author.send({ embeds: [embed] }).catch(() => {
-                message.reply('✅ Kayıt işlemi başarıyla tamamlandı ve loglandı.').then(msg => setTimeout(() => msg.delete(), 5000));
-            });
+            // 7. BAŞARI MESAJI
+            message.reply('✅ Kayıt işlemi başarıyla tamamlandı!').then(msg => setTimeout(() => msg.delete(), 5000));
 
         } catch (error) {
             console.error(error);
-            message.reply('❌ Kayıt sırasında bir hata oluştu. Botun yetkilerini ve rol hiyerarşisini kontrol edin.');
+            message.reply(' Kayıt sırasında bir hata oluştu. Botun yetkilerini kontrol edin.');
         }
     }
 };
