@@ -45,7 +45,7 @@ if (fs.existsSync(commandsPath)) {
 // EXPRESS WEB SUNUCUSU & ADMIN PANELİ
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ADMIN_PASSWORD = "SENIN_SIFREN_BURAYA"; // BURAYI DEĞİŞTİR!
+const ADMIN_PASSWORD = "PixelCore0715"; // BURAYI DEĞİŞTİR!
 
 // Basit Admin Paneli Endpoint'i
 app.get('/admin', async (req, res) => {
