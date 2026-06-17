@@ -5,12 +5,12 @@ module.exports = {
     name: 'duyuruOluştur',
     description: 'Yeni bir duyuru oluşturur. (Sadece bot sahibi veya yetkili rol kullanabilir)',
     
-    async execute(client, message, args) {
+    async execute(message, args, client) {
         // Yetki kontrolü: ownerId VEYA announcementControlRole
         const isOwner = message.author.id === config.ownerId;
         const hasRole = message.member.roles.cache.has(config.announcementControlRole);
         
-        if (!isOwner || !hasRole) {
+        if (!isOwner && !hasRole) {
             return message.reply({ 
                 content: '❌ Bu komutu sadece bot sahibi veya duyuru yetkilisi kullanabilir!',
                 ephemeral: true 
