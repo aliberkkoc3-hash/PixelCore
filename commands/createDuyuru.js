@@ -2,7 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const config = require('../config.json');
 
 module.exports = {
-    name: 'createDuyuru',
+    name: 'duyuruOluştur',
     description: 'Yeni bir duyuru oluşturur. (Sadece bot sahibi veya yetkili rol kullanabilir)',
     
     async execute(client, message, args) {
