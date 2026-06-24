@@ -2,7 +2,7 @@ const { PermissionFlagsBits } = require('discord.js');
 const config = require('../config.json');
 
 module.exports = {
-    name: 'kanalKilitle',
+    name: 'lock',
     description: 'Komutun yazıldığı kanalı mesaj gönderimine kapatır.',
     async execute(message, args, client) {
         // Yetki kontrolü: Kanalları Yönet yetkisi yoksa ve config'deki owner değilse engelle

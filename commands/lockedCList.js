@@ -2,7 +2,7 @@ const { PermissionFlagsBits, ChannelType } = require('discord.js');
 const config = require('../config.json');
 
 module.exports = {
-    name: 'kilitliListele',
+    name: 'lockedlist',
     description: 'Sunucuda şu an kilitli olan tüm yazı kanallarını listeler.',
     async execute(message, args, client) {
         // Yetki kontrolü: Kanalları Yönet yetkisi yoksa ve config'deki owner değilse engelle

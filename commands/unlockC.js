@@ -2,7 +2,7 @@ const { PermissionFlagsBits } = require('discord.js');
 const config = require('../config.json');
 
 module.exports = {
-    name: 'kilitAc',
+    name: 'unlock',
     description: 'Kilitlenmiş olan kanalı tekrar mesaj gönderimine açar.',
     async execute(message, args, client) {
         // Yetki kontrolü: Kanalları Yönet yetkisi yoksa ve config'deki owner değilse engelle
