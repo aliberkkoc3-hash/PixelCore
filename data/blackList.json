@@ -1,0 +1,11 @@
+{
+    "bannedWords": [
+        "küfür1",
+        "küfür2",
+        "discord.gg/"
+    ],
+    "bannedDomains": [
+        "scam-site.com",
+        "free-nitro"
+    ]
+}

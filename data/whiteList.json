@@ -1,0 +1,11 @@
+{
+    "allowedDomains": [
+        "tenor.com",
+        "giphy.com",
+        "cdn.discordapp.com",
+        "media.discordapp.net",
+        "pixelcore.net",
+        "play.pixelcore.net",
+        "github.com"
+    ]
+}
