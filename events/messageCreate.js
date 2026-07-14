@@ -1,45 +1,26 @@
 const config = require('../config.json');
 
-// Spam koruması
-const cooldowns = new Map();
-const COOLDOWN_MS = 2000;
-
 module.exports = {
     name: 'messageCreate',
-    execute(message, client) {
-        if (message.author.bot) return;
-        if (!message.content.startsWith(config.prefix)) return;
+    once: false, // Her mesaj geldiğinde tetiklensin
+    async execute(message, client) {
+        // Mesaj botlardan geliyorsa veya belirlediğimiz prefix ile başlamıyorsa işlem yapma
+        if (message.author.bot || !message.content.startsWith(config.prefix)) return;
 
-        // Spam kontrolü
-        const now = Date.now();
-        const userId = message.author.id;
-        
-        if (cooldowns.has(userId)) {
-            const expirationTime = cooldowns.get(userId) + COOLDOWN_MS;
-            if (now < expirationTime) {
-                const timeLeft = (expirationTime - now) / 1000;
-                return message.reply(`⏳ ${timeLeft.toFixed(1)}s bekleyin.`)
-                    .then(msg => setTimeout(() => msg.delete(), 3000))
-                    .catch(() => {});
-            }
-        }
-
-        cooldowns.set(userId, now);
-        setTimeout(() => cooldowns.delete(userId), COOLDOWN_MS);
-
-        // Komut parse
+        // Prefix'i kesip komut adını ve argümanları ayırıyoruz
         const args = message.content.slice(config.prefix.length).trim().split(/ +/);
         const commandName = args.shift().toLowerCase();
 
-        // Komutu bul ve çalıştır
+        // Komut klasörümüzde bu isimde bir komut var mı kontrol et
         const command = client.commands.get(commandName);
         if (!command) return;
 
         try {
-            command.execute(message, args, client);
+            // Komutu çalıştır ve mesaj, argümanlar ile client objesini gönder
+            await command.execute(message, args, client);
         } catch (error) {
-            console.error(error);
-            message.reply('❌ Komut çalıştırılırken bir hata oluştu.').catch(() => {});
+            console.error(`Komut yürütülürken hata oluştu (${commandName}):`, error);
+            message.reply('❌ Bu komutu çalıştırırken arkada bir şeyler patladı kanka!');
         }
-    }
+    },
 };
