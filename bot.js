@@ -32,10 +32,26 @@ if (fs.existsSync(eventsPath)) {
 // 3. Komut Yükleyici
 const commandsPath = path.join(__dirname, 'commands');
 if (fs.existsSync(commandsPath)) {
-    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-    for (const file of commandFiles) {
-        const command = require(path.join(commandsPath, file));
-        client.commands.set(command.name, command);
+    // Önce commands içindeki klasörleri (kategorileri) oku
+    const commandFolders = fs.readdirSync(commandsPath);
+    
+    for (const folder of commandFolders) {
+        const folderPath = path.join(commandsPath, folder);
+        
+        // Eğer bu bir klasörse içindeki .js dosyalarını oku
+        if (fs.lstatSync(folderPath).isDirectory()) {
+            const commandFiles = fs.readdirSync(folderPath).filter(file => file.endsWith('.js'));
+            
+            for (const file of commandFiles) {
+                const filePath = path.join(folderPath, file);
+                const command = require(filePath);
+                
+                // Komutun hangi kategoriye ait olduğunu koda otomatik ekleyelim (ileride help komutu için çok işe yarar)
+                command.category = folder; 
+                
+                client.commands.set(command.name, command);
+            }
+        }
     }
 }
 
