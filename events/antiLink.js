@@ -2,6 +2,7 @@ const { PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const config = require('../config.json');
+const { sendLog } = require('../utils/logger'); // Log sistemini çağırıyoruz
 
 const whitelistPath = path.join(__dirname, '../data/whiteList.json');
 
@@ -33,8 +34,18 @@ module.exports = {
             if (!isAllowed) {
                 try {
                     await message.delete();
+                    
                     const warnMsg = await message.channel.send(`⚠️ <@${message.author.id}>, bu link güvenli/izinli bulunmadığı için silindi kanka!`);
                     setTimeout(() => warnMsg.delete().catch(() => {}), 5000);
+
+                    // 🚨 YETKİLİ LOGU GÖNDERİLİYOR
+                    await sendLog(
+                        client,
+                        'Yasaklı Link Engellendi',
+                        `**Kanal:** <#${message.channel.id}>\n**Kullanıcı:** <@${message.author.id}>\n**Paylaşılan Link:**\n${message.content}`,
+                        0xFFAA00, // Turuncu renk
+                        message.author
+                    );
                 } catch (error) {
                     console.error('[Anti-Link/Error]:', error);
                 }
