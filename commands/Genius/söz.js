@@ -1,50 +1,43 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { Client: GeniusClient } = require('genius-lyrics');
 const config = require('../../config.json');
 const genius = new GeniusClient(config.geniusToken);
 
 module.exports = {
     name: 'söz',
-    description: 'Aratılan şarkının sözlerini getirir.',
+    description: 'Aratılan şarkının sözlerine giden bağlantıyı getirir.',
     async execute(message, args, client) {
         const aramaSorgusu = args.join(' ');
-        if (!aramaSorgusu) return message.reply('⚠️ Kanka hangi şarkının sözlerini aratıyoruz? Örnek: `pixel-söz Blinding Lights`');
-
-        const beklemeMesaji = await message.reply('🔍 Şarkı sözleri Genius semalarında aranıyor, az bekle kanka...');
+        if (!aramaSorgusu) return message.reply('⚠️ Kanka hangi şarkıyı aratıyoruz? Örnek: `pixel-söz Blinding Lights`');
 
         try {
             const aramalar = await genius.songs.search(aramaSorgusu);
             const sarki = aramalar[0];
 
-            if (!sarki) return beklemeMesaji.edit('❌ Aradığın şarkıyı Genius kayıtlarında bulamadım kanka.');
-
-            let sozler = await sarki.lyrics();
-            
-            // Eğer sözler Discord'un sınırından uzunsa şık bir şekilde keselim
-            let kesilmis = false;
-            if (sozler.length > 1500) {
-                sozler = sozler.substring(0, 1500) + '...';
-                kesilmis = true;
-            }
+            if (!sarki) return message.reply('❌ Aradığın şarkıyı Genius kayıtlarında bulamadım kanka.');
 
             const embed = new EmbedBuilder()
                 .setColor(0xFFFF00) // Genius Sarısı
                 .setTitle(`🎵 ${sarki.title}`)
                 .setAuthor({ name: sarki.artist.name, iconURL: sarki.artist.image })
-                .setDescription(sozler)
+                .setDescription(`Cloudflare engellerini aştık kanka! **${sarki.title}** şarkısının tüm orijinal sözlerine aşağıdaki butona tıklayarak Genius üzerinden ışık hızıyla ulaşabilirsin. 🚀`)
                 .setThumbnail(sarki.thumbnail)
                 .setTimestamp()
                 .setFooter({ text: 'PixelCore Müzik', iconURL: client.user.displayAvatarURL() });
 
-            if (kesilmis) {
-                embed.addFields({ name: '🔗 Devamı İçin', value: `Şarkı sözlerinin tamamına [Buradan](${sarki.url}) ulaşabilirsin kanka.` });
-            }
+            // Şarkı sözü sayfasına gitmesi için şık bir buton ekliyoruz
+            const buton = new ButtonBuilder()
+                .setLabel('Şarkı Sözlerini Oku 🎤')
+                .setURL(sarki.url)
+                .setStyle(ButtonStyle.Link);
 
-            beklemeMesaji.edit({ content: null, embeds: [embed] });
+            const row = new ActionRowBuilder().addComponents(buton);
+
+            message.reply({ embeds: [embed], components: [row] });
 
         } catch (error) {
             console.error(error);
-            beklemeMesaji.edit('❌ Şarkı sözlerini çekerken sistemsel bir hata oluştu kanka.');
+            message.reply('❌ Şarkı aranırken sistemsel bir hata oluştu kanka.');
         }
     }
 };
