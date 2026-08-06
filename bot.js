@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
+const cors = require('cors'); // PixelPulse web arayüzünün erişebilmesi için
 require('dotenv').config();
 
 // 1. Bot İstemcisi (Client) Kurulumu
@@ -57,12 +58,41 @@ if (fs.existsSync(commandsPath)) {
     }
 }
 
-// 4. Minimalist Web Sunucusu (Render vb. platformlarda aktif tutmak için)
+// 4. Minimalist Web Sunucusu & PixelPulse API
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// PixelPulse web sayfasının bu API'ye erişebilmesi için CORS izni
+app.use(cors());
+
+// Çalışma süresini okunabilir formata dönüştüren yardımcı fonksiyon
+function getFormattedUptime() {
+    const totalSeconds = Math.floor(process.uptime());
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
+}
+
+// Ana Sayfa Rotaları
 app.get('/', (req, res) => {
     res.send('💚 PixelCore aktif ve canavar gibi çalışıyor!');
+});
+
+// PixelPulse Status Page API Endpoint'i
+app.get('/api/status', (req, res) => {
+    res.json({
+        bot: 'PixelCore',
+        status: client.ws.ping ? 'online' : 'starting',
+        ping: client.ws.ping || 0,
+        uptime: getFormattedUptime(),
+        timestamp: new Date().toISOString()
+    });
 });
 
 app.listen(PORT, () => {
