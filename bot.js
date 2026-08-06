@@ -1,4 +1,6 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const { Player } = require('discord-player');
+const { DefaultExtractors } = require('@discord-player/extractor');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
@@ -10,13 +12,24 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates, // Ses kanalları ve müzik için şart
+        GatewayIntentBits.GuildPresences   // Spotify/Aktivite takibi için şart
     ]
 });
 
+// 2. Müzik Oyuncusu (Player) Kurulumu
+const player = new Player(client, {
+    skipFFmpeg: false
+});
+
+// YouTube, Spotify, SoundCloud vb. extractor'ları yüklüyoruz
+player.extractors.loadMulti(DefaultExtractors);
+
+client.player = player;
 client.commands = new Collection();
 
-// 2. Event (Etkinlik) Yükleyici
+// 3. Event (Etkinlik) Yükleyici
 const eventsPath = path.join(__dirname, 'events');
 if (fs.existsSync(eventsPath)) {
     const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
@@ -30,7 +43,7 @@ if (fs.existsSync(eventsPath)) {
     }
 }
 
-// 3. Komut Yükleyici
+// 4. Komut Yükleyici
 const commandsPath = path.join(__dirname, 'commands');
 if (fs.existsSync(commandsPath)) {
     // Önce commands içindeki klasörleri (kategorileri) oku
@@ -47,7 +60,7 @@ if (fs.existsSync(commandsPath)) {
                 const filePath = path.join(folderPath, file);
                 const command = require(filePath);
                 
-                // Komutun hangi kategoriye ait olduğunu koda otomatik ekleyelim (ileride help komutu için çok işe yarar)
+                // Komutun hangi kategoriye ait olduğunu koda otomatik ekleyelim
                 command.category = folder; 
                 
                 client.commands.set(command.name, command);
@@ -56,7 +69,7 @@ if (fs.existsSync(commandsPath)) {
     }
 }
 
-// 4. Minimalist Web Sunucusu (Render vb. platformlarda aktif tutmak için)
+// 5. Minimalist Web Sunucusu (Render vb. platformlarda aktif tutmak için)
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -68,7 +81,7 @@ app.listen(PORT, () => {
     console.log(`🌐 Web sunucusu ${PORT} portunda aktif.`);
 });
 
-// 5. Botu Başlat
+// 6. Botu Başlat
 client.login(process.env.TOKEN);
 
 // Güvenli Kapatma Sistemi
