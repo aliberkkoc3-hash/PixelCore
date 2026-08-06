@@ -21,6 +21,7 @@
     "genius-lyrics": "^4.4.7",
     "moment": "^2.30.1",
     "nodemailer": "^9.0.0",
-    "opusscript": "^0.1.1"
+    "opusscript": "^0.1.1",
+    "tweetnacl": "^1.0.3"
   }
 }
