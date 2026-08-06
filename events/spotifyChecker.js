@@ -6,7 +6,7 @@ const genius = new GeniusClient(config.geniusToken);
 const sonAtilanlar = new Map(); 
 
 module.exports = {
-    name: 'ready',
+    name: 'clientReady',
     once: true,
     execute(client) {
         console.log('🟢 Güvenli (API Destekli) Spotify Takip Sistemi Aktif!');
