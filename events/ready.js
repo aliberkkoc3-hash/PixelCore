@@ -1,7 +1,7 @@
 const { ActivityType } = require('discord.js');
 
 module.exports = {
-    name: 'ready',
+    name: 'clientReady',
     once: true, // Sadece bir kez, bot ilk açıldığında çalışsın
     execute(client) {
         console.log(`🤖 ${client.user.tag} başarıyla Discord'a bağlandı!`);
