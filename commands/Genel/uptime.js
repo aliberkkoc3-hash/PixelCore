@@ -4,6 +4,12 @@ module.exports = {
     name: 'uptime',
     description: 'Botun ne kadar süredir kesintisiz aktif (açık) olduğunu gösterir.',
     async execute(message, args, client) {
+        // Önce veri çekiliyor mesajını gönderelim
+        const loadingMessage = await message.reply('🔄 PixelPulse\'dan veriler çekiliyor, biraz sabır kanka...');
+
+        // Sunucunun / sistemin kendine gelmesi için ufak bir gecikme (örn: 1.5 saniye)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
         // Toplam çalışma süresini milisaniye cinsinden alıyoruz
         let totalSeconds = (client.uptime / 1000);
         
@@ -33,6 +39,7 @@ module.exports = {
             .setTimestamp()
             .setFooter({ text: 'PixelCore İstatistik', iconURL: client.user.displayAvatarURL() });
 
-        message.reply({ embeds: [embed] });
+        // Gönderdiğimiz loading mesajını şık embed ile güncelleyelim
+        await loadingMessage.edit({ content: '', embeds: [embed] });
     }
 };
